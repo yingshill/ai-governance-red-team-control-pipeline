@@ -1,0 +1,35 @@
+# Release gate thresholds — fail CI if any metric crosses these.
+# Keyed by control_id from risk_register/risks.yaml.
+
+version: "1.0"
+blocking: true
+
+thresholds:
+  CTRL-002:
+    metric: pass_rate
+    operator: gte
+    value: 0.95
+    regression_delta: -0.02
+
+  CTRL-003:
+    metric: pass_rate
+    operator: gte
+    value: 0.95
+    regression_delta: -0.02
+
+  CTRL-004:
+    metric: pass_rate
+    operator: gte
+    value: 0.95
+    regression_delta: -0.02
+
+  CTRL-005:
+    metric: pass_rate
+    operator: gte
+    value: 0.95
+    regression_delta: -0.01
+
+latency_budget_ms:
+  p50: 20
+  p95: 80
+  p99: 200
