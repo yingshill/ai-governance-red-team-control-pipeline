@@ -1,0 +1,56 @@
+name: AI Safety Gate
+
+on:
+  pull_request:
+    paths:
+      - "controls/**"
+      - "evals/**"
+      - "risk_register/**"
+      - "config/**"
+      - "pyproject.toml"
+  push:
+    branches: [main]
+
+jobs:
+  validate-risk-register:
+    name: Validate risk register schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pyyaml jsonschema
+      - run: python risk_register/validate.py
+
+  safety-eval:
+    name: Safety regression eval
+    runs-on: ubuntu-latest
+    needs: validate-risk-register
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+      - name: Run safety eval suite
+        run: |
+          pytest evals/test_controls.py \
+            --tb=short \
+            --json-report \
+            --json-report-file=eval_results.json \
+            -v
+      - name: Check release gate thresholds
+        run: python scripts/check_thresholds.py --results eval_results.json --config config/thresholds.yaml
+      - name: Upload eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-eval-report
+          path: |
+            eval_results.json
+            reports/
+          retention-days: 90
