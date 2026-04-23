@@ -1,6 +1,6 @@
 [project]
 name = "ai-governance-red-team-control-pipeline"
-version = "0.2.0"
+version = "0.2.1"
 description = "Red team → controls → evals → CI safety gate (NIST AI RMF aligned)"
 requires-python = ">=3.11"
 readme = "README.md"
@@ -26,6 +26,7 @@ dev = [
 ai-safety-validate = "risk_register.validate:main"
 ai-safety-gate = "scripts.check_thresholds:main"
 ai-safety-report = "scripts.generate_report:main"
+ai-safety-baseline = "scripts.update_baseline:main"
 
 [project.urls]
 Repository = "https://github.com/yingshill/ai-governance-red-team-control-pipeline"

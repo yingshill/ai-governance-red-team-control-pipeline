@@ -1,4 +1,4 @@
-.PHONY: install validate eval gate report lint typecheck cov audit all clean
+.PHONY: install validate eval gate report lint typecheck cov audit baseline all clean
 
 install:
 	pip install -e ".[dev]"
@@ -7,6 +7,7 @@ validate:
 	python -m risk_register.validate || python risk_register/validate.py
 
 eval:
+	mkdir -p reports
 	pytest --json-report --json-report-file=reports/pytest.json
 
 gate:
@@ -23,6 +24,15 @@ typecheck:
 
 cov:
 	pytest --cov=controls --cov=evals --cov-report=term-missing --cov-report=html
+
+baseline:
+	@echo "⚠  This rewrites evals/datasets/regression_baseline.json."
+	@echo "   Only run after a deliberate, reviewed change. See CONTRIBUTING.md."
+	@echo ""
+	ai-safety-baseline
+
+baseline-preview:
+	ai-safety-baseline --dry-run
 
 audit: lint typecheck validate eval gate
 	@echo "✅ Audit pipeline green."
