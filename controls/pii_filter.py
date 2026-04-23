@@ -20,6 +20,14 @@ _DETECTORS: Final = (
 
 
 class PIIFilter(BaseControl):
+    """Detect PII entities in prompts/responses and redact or block them.
+
+    Semantic convention (shared with all BaseControl subclasses):
+        - ``passed=True`` means the control did **not** need to intervene.
+        - ``passed=False`` means the control **did** intervene (redact, block,
+          escalate, etc.). The intervening risk_ids are reported downstream.
+    """
+
     control_id = "CTRL-002"
     description = "Detect and redact PII from model outputs"
     risk_ids = ["RISK-002"]
@@ -64,11 +72,22 @@ class PIIFilter(BaseControl):
                 metadata={"entities": hits},
             )
 
+        if self.mode == "flag":
+            return ControlResult(
+                passed=False,
+                control_id=self.control_id,
+                risk_ids=self.risk_ids,
+                action="allow",
+                reason=f"PII flagged (not redacted): {sorted(hits)}",
+                metadata={"entities": hits},
+            )
+
+        # mode == "redact"
         return ControlResult(
-            passed=True,
+            passed=False,  # intervention occurred — see class docstring
             control_id=self.control_id,
             risk_ids=self.risk_ids,
-            action="redact" if self.mode == "redact" else "allow",
+            action="redact",
             reason=f"Redacted PII entities: {sorted(hits)}",
             metadata={"entities": hits, "redacted_text": redacted},
         )

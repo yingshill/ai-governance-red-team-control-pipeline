@@ -5,6 +5,10 @@ A lightweight, pattern-based first layer. An optional second layer
 
 The per-prompt result cache is an LRU with a bounded size so it cannot grow
 unbounded in a long-running process.
+
+Pattern coverage is intentionally broader than the minimum needed to pass
+the current eval set — the extra patterns serve as a first line of defense
+against variants not yet represented in the dataset.
 """
 from __future__ import annotations
 
@@ -17,12 +21,23 @@ from ._log import get_logger
 from .base import BaseControl, ControlResult
 
 _KNOWN_PATTERNS: Final = (
-    r"ignore (all |previous |your )?(instructions|prompt|system)",
-    r"you are now (DAN|a different|an unrestricted)",
-    r"pretend (you have no|you are not|there are no) (restrictions|limits|rules)",
-    r"developer mode",
+    # "ignore all previous instructions", "ignore your prompt", etc.
+    # Allow any combination/repetition of modifiers between the verb and noun.
+    r"ignore\s+(?:all\s+|previous\s+|prior\s+|your\s+|the\s+|my\s+|earlier\s+)*"
+    r"(?:instructions?|prompts?|system(?:\s+prompt)?|rules?|guidelines?|directives?)",
+    # Persona hijack
+    r"you are now\s+(?:DAN|a different|an unrestricted|in developer)",
+    r"pretend\s+(?:you have no|you are not|there are no)\s+(?:restrictions|limits|rules)",
+    # Mode / safety bypass
+    r"\bdeveloper mode\b",
     r"\bjailbreak\b",
-    r"act as (?!a helpful)",
+    r"disable\s+(?:safety|safeguards?|filters?|guardrails?)",
+    r"(?:no|without)\s+(?:restrictions|limits|rules|filters|constraints)",
+    # Exfiltration probes
+    r"reveal\s+(?:the\s+|your\s+)?(?:system\s+prompt|instructions|hidden|confidential)",
+    r"(?:print|show|output|repeat)\s+(?:the\s+|your\s+)?(?:system\s+prompt|initial\s+prompt)",
+    # Role swap
+    r"act as\s+(?!a helpful|an? assistant|an? friend)",
 )
 
 _logger = get_logger("controls.jailbreak")

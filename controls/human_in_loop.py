@@ -1,4 +1,9 @@
-"""Human-in-the-loop trigger logic — addresses RISK-005."""
+"""Human-in-the-loop trigger logic — addresses RISK-005.
+
+Escalate when an agent is about to take a high-stakes action. Triggers are
+configurable via HITLPolicy. Patterns allow common modifiers ("all",
+"every", "the") and plural nouns so paraphrased commands still match.
+"""
 from __future__ import annotations
 
 import re
@@ -14,15 +19,27 @@ class HITLPolicy:
 
     action_patterns: list[str] = field(
         default_factory=lambda: [
-            r"send (email|message|notification)",
-            r"(delete|remove|drop) (database|table|record|user)",
-            r"(transfer|pay|charge|refund) \$?[\d,]+",
-            r"deploy|rollout|release to production",
-            r"(create|modify|revoke) (api key|credential|permission|access)",
+            # Communications
+            r"send\s+(?:an?\s+|the\s+)?(?:email|message|notification|sms|text)",
+            # Destructive data operations — allow modifiers + plurals
+            r"(?:delete|remove|drop|purge|wipe)\s+"
+            r"(?:all\s+|every\s+|the\s+|any\s+)?"
+            r"(?:database|table|record|user|account|file|row|entry)s?",
+            # Monetary movement
+            r"(?:transfer|pay|charge|refund|wire|send)\s+\$?[\d,]+(?:\.\d+)?",
+            # Deployments
+            r"\b(?:deploy|rollout|release)\s+(?:to\s+)?production\b",
+            r"\b(?:push|promote)\s+to\s+prod(?:uction)?\b",
+            # Credentials / access management
+            r"(?:create|modify|revoke|rotate|reset)\s+"
+            r"(?:an?\s+|the\s+)?"
+            r"(?:api\s+key|credential|permission|access|token|password)",
         ]
     )
     context_keywords: list[str] = field(
-        default_factory=lambda: ["medical", "legal", "financial", "hipaa", "gdpr", "phi"]
+        default_factory=lambda: [
+            "medical", "legal", "financial", "hipaa", "gdpr", "phi", "pci",
+        ]
     )
     confidence_threshold: float = 0.75
     max_cost_usd: float = 100.0
@@ -35,7 +52,9 @@ class HumanInLoopTrigger(BaseControl):
 
     def __init__(self, policy: HITLPolicy | None = None) -> None:
         self.policy = policy or HITLPolicy()
-        self._compiled = [re.compile(p, re.IGNORECASE) for p in self.policy.action_patterns]
+        self._compiled = [
+            re.compile(p, re.IGNORECASE) for p in self.policy.action_patterns
+        ]
 
     def evaluate(
         self,
