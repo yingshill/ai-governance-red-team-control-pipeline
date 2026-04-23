@@ -1,0 +1,24 @@
+name: Nightly safety eval
+
+on:
+  schedule:
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  nightly-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .[dev]
+      - run: pytest evals/test_controls.py -v --json-report --json-report-file=eval_results.json
+      - run: python scripts/generate_report.py --results eval_results.json --out reports/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-safety-report
+          path: reports/
+          retention-days: 30
