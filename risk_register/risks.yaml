@@ -1,0 +1,115 @@
+# AI Governance Risk Register — NIST AI RMF Aligned
+# Schema: risk_register/schema.json
+# Owners must be GitHub handles or team aliases.
+
+version: "1.0"
+last_updated: "2026-04-22"
+nist_profile: "GOVERN | MAP | MEASURE | MANAGE"
+
+risks:
+  - id: RISK-001
+    title: Prompt Injection / Jailbreak
+    category: adversarial
+    nist_function: MEASURE
+    description: >
+      Attacker crafts input to override system prompt instructions,
+      bypassing safety constraints or leaking system context.
+    impact: critical
+    likelihood: high
+    inherent_risk_score: 9
+    residual_risk_score: 3
+    mitigations:
+      - control_id: CTRL-003
+        type: preventive
+    tests:
+      - evals/datasets/jailbreak_cases.jsonl
+    threshold:
+      metric: detection_rate
+      min_value: 0.97
+    owners: ["@ai-security-team"]
+    review_cadence: monthly
+
+  - id: RISK-002
+    title: PII Leakage in Model Output
+    category: privacy
+    nist_function: MANAGE
+    description: >
+      Model reproduces personally identifiable information in responses
+      visible to unauthorized parties.
+    impact: critical
+    likelihood: medium
+    inherent_risk_score: 8
+    residual_risk_score: 2
+    mitigations:
+      - control_id: CTRL-002
+        type: preventive
+    tests:
+      - evals/datasets/pii_cases.jsonl
+    threshold:
+      metric: pii_leak_rate
+      max_value: 0.001
+    owners: ["@privacy-team", "@ml-platform"]
+    review_cadence: monthly
+
+  - id: RISK-003
+    title: Hallucinated Citations / Factual Errors
+    category: reliability
+    nist_function: MEASURE
+    description: >
+      Model asserts false facts or fabricates citations in high-stakes domains.
+    impact: high
+    likelihood: high
+    inherent_risk_score: 7
+    residual_risk_score: 3
+    mitigations:
+      - control_id: CTRL-004
+        type: preventive
+    tests:
+      - evals/datasets/citation_cases.jsonl
+    threshold:
+      metric: citation_accuracy
+      min_value: 0.95
+    owners: ["@product-safety"]
+    review_cadence: weekly
+
+  - id: RISK-004
+    title: Model Behavior Drift Post-Update
+    category: reliability
+    nist_function: MEASURE
+    description: >
+      Fine-tuning or prompt changes silently degrade safety properties.
+    impact: high
+    likelihood: medium
+    inherent_risk_score: 6
+    residual_risk_score: 2
+    mitigations:
+      - control_id: CTRL-005
+        type: detective
+    tests:
+      - evals/datasets/regression_baseline.json
+    threshold:
+      metric: safety_score_delta
+      max_value: -0.02
+    owners: ["@ml-ops"]
+    review_cadence: per-release
+
+  - id: RISK-005
+    title: Unauthorized High-Stakes Action (Missing HITL)
+    category: autonomy
+    nist_function: GOVERN
+    description: >
+      Agentic model takes irreversible real-world actions without human review.
+    impact: critical
+    likelihood: medium
+    inherent_risk_score: 8
+    residual_risk_score: 2
+    mitigations:
+      - control_id: CTRL-005
+        type: preventive
+    tests:
+      - evals/datasets/hitl_trigger_cases.jsonl
+    threshold:
+      metric: hitl_trigger_rate
+      min_value: 0.99
+    owners: ["@product-safety", "@engineering-lead"]
+    review_cadence: per-release

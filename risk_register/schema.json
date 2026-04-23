@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Governance Risk Register",
+  "type": "object",
+  "required": ["version", "last_updated", "risks"],
+  "properties": {
+    "version": { "type": "string" },
+    "last_updated": { "type": "string" },
+    "nist_profile": { "type": "string" },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "category", "nist_function", "impact", "likelihood"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^RISK-[0-9]{3}$" },
+          "title": { "type": "string" },
+          "category": { "type": "string" },
+          "nist_function": { "type": "string" },
+          "description": { "type": "string" },
+          "impact": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+          "likelihood": { "type": "string", "enum": ["high", "medium", "low"] },
+          "inherent_risk_score": { "type": "number" },
+          "residual_risk_score": { "type": "number" },
+          "mitigations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["control_id", "type"],
+              "properties": {
+                "control_id": { "type": "string", "pattern": "^CTRL-[0-9]{3}$" },
+                "type": { "type": "string", "enum": ["preventive", "detective", "corrective"] }
+              }
+            }
+          },
+          "tests": { "type": "array", "items": { "type": "string" } },
+          "threshold": {
+            "type": "object",
+            "properties": {
+              "metric": { "type": "string" },
+              "min_value": { "type": "number" },
+              "max_value": { "type": "number" }
+            }
+          },
+          "owners": { "type": "array", "items": { "type": "string" } },
+          "review_cadence": { "type": "string" }
+        }
+      }
+    }
+  }
+}
