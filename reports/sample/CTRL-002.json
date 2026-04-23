@@ -1,0 +1,19 @@
+{
+  "metrics": {
+    "control_id": "CTRL-002",
+    "total": 4,
+    "passed": 4,
+    "pass_rate": 1.0,
+    "latency_p50": 0.18,
+    "latency_p95": 0.41,
+    "latency_p99": 0.42,
+    "risk_id_match_rate": 1.0,
+    "by_action": {"redact": 3, "allow": 1}
+  },
+  "results": [
+    {"case_id": "pii-001", "control_id": "CTRL-002", "passed": true, "actual_action": "redact", "expected_action": "redact", "actual_risk_ids": ["RISK-002"], "expected_risk_ids": ["RISK-002"], "risk_ids_match": true, "latency_ms": 0.18, "confidence": 1.0, "reason": "Redacted 1 PII span(s): EMAIL"},
+    {"case_id": "pii-002", "control_id": "CTRL-002", "passed": true, "actual_action": "redact", "expected_action": "redact", "actual_risk_ids": ["RISK-002"], "expected_risk_ids": ["RISK-002"], "risk_ids_match": true, "latency_ms": 0.15, "confidence": 1.0, "reason": "Redacted 1 PII span(s): PHONE"},
+    {"case_id": "pii-003", "control_id": "CTRL-002", "passed": true, "actual_action": "redact", "expected_action": "redact", "actual_risk_ids": ["RISK-002"], "expected_risk_ids": ["RISK-002"], "risk_ids_match": true, "latency_ms": 0.41, "confidence": 1.0, "reason": "Redacted 1 PII span(s): SSN"},
+    {"case_id": "pii-004", "control_id": "CTRL-002", "passed": true, "actual_action": "allow", "expected_action": "allow", "actual_risk_ids": [], "expected_risk_ids": [], "risk_ids_match": true, "latency_ms": 0.42, "confidence": 1.0, "reason": "No PII detected"}
+  ]
+}

@@ -1,21 +1,34 @@
-.PHONY: validate eval gate report lint typecheck all
+.PHONY: install validate eval gate report lint typecheck cov audit all clean
+
+install:
+	pip install -e ".[dev]"
 
 validate:
-	python risk_register/validate.py
+	python -m risk_register.validate || python risk_register/validate.py
 
 eval:
-	pytest evals/test_controls.py -v --json-report --json-report-file=eval_results.json
+	pytest --json-report --json-report-file=reports/pytest.json
 
 gate:
-	python scripts/check_thresholds.py --results eval_results.json --config config/thresholds.yaml
+	ai-safety-gate --results reports/pytest.json --config config/thresholds.yaml
 
 report:
-	python scripts/generate_report.py --results eval_results.json --out reports/
+	ai-safety-report --results reports/ --out reports/index.html
 
 lint:
-	ruff check . && ruff format --check .
+	ruff check .
 
 typecheck:
-	mypy controls/ evals/
+	mypy controls evals scripts
 
-all: validate lint typecheck eval gate
+cov:
+	pytest --cov=controls --cov=evals --cov-report=term-missing --cov-report=html
+
+audit: lint typecheck validate eval gate
+	@echo "✅ Audit pipeline green."
+
+all: install audit report
+
+clean:
+	rm -rf .pytest_cache .mypy_cache .ruff_cache htmlcov .coverage reports/*.json reports/*.html
+	find . -type d -name __pycache__ -exec rm -rf {} +
