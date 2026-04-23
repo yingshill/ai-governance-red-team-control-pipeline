@@ -1,6 +1,6 @@
 [project]
 name = "ai-governance-red-team-control-pipeline"
-version = "0.1.0"
+version = "0.2.0"
 description = "Red team → controls → evals → CI safety gate (NIST AI RMF aligned)"
 requires-python = ">=3.11"
 readme = "README.md"
@@ -9,32 +9,53 @@ license = { text = "MIT" }
 dependencies = [
   "pyyaml>=6.0",
   "jsonschema>=4.21",
-  "pydantic>=2.6",
-  "structlog>=24.1",
 ]
 
 [project.optional-dependencies]
 dev = [
   "pytest>=8.1",
   "pytest-json-report>=1.5",
+  "pytest-cov>=5.0",
   "ruff>=0.4",
   "mypy>=1.9",
   "types-PyYAML",
+  "pre-commit>=3.7",
 ]
+
+[project.scripts]
+ai-safety-validate = "risk_register.validate:main"
+ai-safety-gate = "scripts.check_thresholds:main"
+ai-safety-report = "scripts.generate_report:main"
+
+[project.urls]
+Repository = "https://github.com/yingshill/ai-governance-red-team-control-pipeline"
 
 [build-system]
 requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["controls*", "evals*"]
+include = ["controls*", "evals*", "scripts*", "risk_register*"]
+exclude = ["evals.datasets*"]
+
+[tool.setuptools.package-data]
+controls = ["py.typed"]
+evals = ["py.typed"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "UP", "B"]
+select = ["E", "F", "I", "N", "UP", "B", "D"]
+ignore = ["D100", "D104", "D107"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"evals/**/*.py" = ["D"]
+"scripts/**/*.py" = ["D"]
 
 [tool.mypy]
 strict = true
@@ -43,3 +64,9 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["evals"]
 pythonpath = ["."]
+filterwarnings = ["error"]
+addopts = "-ra --strict-markers"
+
+[tool.coverage.run]
+source = ["controls", "evals"]
+omit = ["evals/test_*.py", "evals/test_unit/*"]

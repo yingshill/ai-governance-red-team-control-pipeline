@@ -2,7 +2,7 @@
 # Schema: risk_register/schema.json
 # Owners must be GitHub handles or team aliases.
 
-version: "1.0"
+version: "1.1"
 last_updated: "2026-04-22"
 nist_profile: "GOVERN | MAP | MEASURE | MANAGE"
 
@@ -83,7 +83,7 @@ risks:
     inherent_risk_score: 6
     residual_risk_score: 2
     mitigations:
-      - control_id: CTRL-005
+      - control_id: CTRL-006
         type: detective
     tests:
       - evals/datasets/regression_baseline.json
