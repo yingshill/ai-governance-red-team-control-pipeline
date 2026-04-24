@@ -28,6 +28,7 @@ ai-safety-gate = "scripts.check_thresholds:main"
 ai-safety-report = "scripts.generate_report:main"
 ai-safety-baseline = "scripts.update_baseline:main"
 ai-safety-amplify = "scripts.amplify_dataset:main"
+ai-safety-coverage = "scripts.amplified_coverage:main"
 
 [project.urls]
 Repository = "https://github.com/yingshill/ai-governance-red-team-control-pipeline"

@@ -1,4 +1,4 @@
-.PHONY: install validate eval gate report lint typecheck cov audit baseline baseline-preview amplify all clean
+.PHONY: install validate eval gate report lint typecheck cov audit baseline baseline-preview amplify coverage-amplified all clean
 
 install:
 	pip install -e ".[dev]"
@@ -44,6 +44,12 @@ amplify:
 	@echo "Amplifying citation cases..."
 	ai-safety-amplify --seed evals/datasets/citation_cases.jsonl --out evals/datasets/citation_amplified.jsonl --n 20
 	@echo "✅ All seeds amplified. Amplified datasets are deterministic given --rng-seed."
+
+coverage-amplified:
+	@echo "Running amplified coverage sweep (non-blocking — reports gaps as data)..."
+	mkdir -p reports
+	ai-safety-coverage --out reports/
+	@echo "✅ Report written to reports/amplified_coverage.{json,md}"
 
 audit: lint typecheck validate eval gate
 	@echo "✅ Audit pipeline green."
