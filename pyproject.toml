@@ -1,6 +1,6 @@
 [project]
 name = "ai-governance-red-team-control-pipeline"
-version = "0.2.1"
+version = "0.3.0a1"
 description = "Red team → controls → evals → CI safety gate (NIST AI RMF aligned)"
 requires-python = ">=3.11"
 readme = "README.md"
@@ -27,6 +27,7 @@ ai-safety-validate = "risk_register.validate:main"
 ai-safety-gate = "scripts.check_thresholds:main"
 ai-safety-report = "scripts.generate_report:main"
 ai-safety-baseline = "scripts.update_baseline:main"
+ai-safety-amplify = "scripts.amplify_dataset:main"
 
 [project.urls]
 Repository = "https://github.com/yingshill/ai-governance-red-team-control-pipeline"
@@ -36,12 +37,13 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["controls*", "evals*", "scripts*", "risk_register*"]
+include = ["controls*", "evals*", "scripts*", "risk_register*", "red_team*"]
 exclude = ["evals.datasets*"]
 
 [tool.setuptools.package-data]
 controls = ["py.typed"]
 evals = ["py.typed"]
+red_team = ["py.typed"]
 
 [tool.ruff]
 line-length = 100
@@ -69,5 +71,5 @@ filterwarnings = ["error"]
 addopts = "-ra --strict-markers"
 
 [tool.coverage.run]
-source = ["controls", "evals"]
+source = ["controls", "evals", "red_team"]
 omit = ["evals/test_*.py", "evals/test_unit/*"]

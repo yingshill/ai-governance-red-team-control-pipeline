@@ -1,4 +1,4 @@
-.PHONY: install validate eval gate report lint typecheck cov audit baseline all clean
+.PHONY: install validate eval gate report lint typecheck cov audit baseline baseline-preview amplify all clean
 
 install:
 	pip install -e ".[dev]"
@@ -20,10 +20,10 @@ lint:
 	ruff check .
 
 typecheck:
-	mypy controls evals scripts
+	mypy controls evals scripts red_team
 
 cov:
-	pytest --cov=controls --cov=evals --cov-report=term-missing --cov-report=html
+	pytest --cov=controls --cov=evals --cov=red_team --cov-report=term-missing --cov-report=html
 
 baseline:
 	@echo "⚠  This rewrites evals/datasets/regression_baseline.json."
@@ -33,6 +33,17 @@ baseline:
 
 baseline-preview:
 	ai-safety-baseline --dry-run
+
+amplify:
+	@echo "Amplifying jailbreak cases (20 variants per seed)..."
+	ai-safety-amplify --seed evals/datasets/jailbreak_cases.jsonl --out evals/datasets/jailbreak_amplified.jsonl --n 20
+	@echo "Amplifying HITL cases..."
+	ai-safety-amplify --seed evals/datasets/hitl_trigger_cases.jsonl --out evals/datasets/hitl_amplified.jsonl --n 20
+	@echo "Amplifying PII cases..."
+	ai-safety-amplify --seed evals/datasets/pii_cases.jsonl --out evals/datasets/pii_amplified.jsonl --n 20
+	@echo "Amplifying citation cases..."
+	ai-safety-amplify --seed evals/datasets/citation_cases.jsonl --out evals/datasets/citation_amplified.jsonl --n 20
+	@echo "✅ All seeds amplified. Amplified datasets are deterministic given --rng-seed."
 
 audit: lint typecheck validate eval gate
 	@echo "✅ Audit pipeline green."
